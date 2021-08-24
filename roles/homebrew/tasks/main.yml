@@ -170,7 +170,7 @@
           ignore_errors: true
 
         - name: Extract brews from Brewfile
-          shell: "grep '^brew' {{ homebrew_brewfile_dir }}/Brewfile | cut -d'\"' -f2"
+          shell: "grep '^brew' {{ homebrew_brewfile_dir }}/Brewfile | sed 's/^[^\"]*\"\(.*\)\"$/\1/'"
           register: homebrew_brewfile_brew_output
 
         - name: Install brews extracted from Brewfile
@@ -181,7 +181,7 @@
           ignore_errors: true
 
         - name: Extract casks from Brewfile
-          shell: "grep '^cask' {{ homebrew_brewfile_dir }}/Brewfile | cut -d'\"' -f2"
+          shell: "grep '^cask' {{ homebrew_brewfile_dir }}/Brewfile | sed 's/^[^\"]*\"\(.*\)\"$/\1/'"
           register: homebrew_brewfile_cask_output
 
         - name: Install casks extracted from Brewfile
@@ -192,7 +192,7 @@
           ignore_errors: true
 
         - name: Extract mases from Brewfile
-          shell: "grep '^mas' {{ homebrew_brewfile_dir }}/Brewfile | cut -d'\", id: ' -f2"
+          shell: "grep '^mas' {{ homebrew_brewfile_dir }}/Brewfile | grep -o '\d\+$'"
           register: homebrew_brewfile_mases_output
 
         - name: Install mases extracted from Brewfile
