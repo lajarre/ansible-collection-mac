@@ -5,12 +5,10 @@ name: CI
   push:
     branches:
       - master
-  schedule:
-    - cron: "0 5 * * 0"
 
 defaults:
   run:
-    working-directory: ansible_collections/geerlingguy/mac
+    working-directory: ansible_collections/lajarre/mac
 
 jobs:
 
@@ -21,7 +19,7 @@ jobs:
       - name: Check out the codebase.
         uses: actions/checkout@v2
         with:
-          path: ansible_collections/geerlingguy/mac
+          path: ansible_collections/lajarre/mac
 
       - name: Set up Python 3.
         uses: actions/setup-python@v2
@@ -48,7 +46,7 @@ jobs:
       - name: Check out the codebase.
         uses: actions/checkout@v2
         with:
-          path: ansible_collections/geerlingguy/mac
+          path: ansible_collections/lajarre/mac
 
       - name: Uninstall GitHub Actions' built-in Homebrew.
         run: tests/uninstall-homebrew.sh
