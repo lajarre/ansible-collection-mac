@@ -156,8 +156,51 @@
       register: homebrew_brewfile
       check_mode: false
 
-    - name: Install from Brewfile.
-      command: "{{ homebrew_brew_bin_path }}/brew bundle chdir={{ homebrew_brewfile_dir }}"
+    - name: Install from Brewfile
+      block:
+        - name: Extract taps from Brewfile
+          shell: "grep '^tap' {{ homebrew_brewfile_dir }}/Brewfile | cut -d'\"' -f2"
+          register: homebrew_brewfile_taps_output
+
+        - name: Install Brewfile taps one by one
+          homebrew_tap:
+            tap: '{{ item }}'
+            state: present
+          loop: "{{ homebrew_brewfile_taps_output.stdout_lines }}"
+          ignore_errors: true
+
+        - name: Extract brews from Brewfile
+          shell: "grep '^brew' {{ homebrew_brewfile_dir }}/Brewfile | cut -d'\"' -f2"
+          register: homebrew_brewfile_brew_output
+
+        - name: Install brews extracted from Brewfile
+          homebrew:
+            name: '{{ item }}'
+            state: present
+          loop: "{{ homebrew_brewfile_brew_output.stdout_lines }}"
+          ignore_errors: true
+
+        - name: Extract casks from Brewfile
+          shell: "grep '^cask' {{ homebrew_brewfile_dir }}/Brewfile | cut -d'\"' -f2"
+          register: homebrew_brewfile_cask_output
+
+        - name: Install casks extracted from Brewfile
+          homebrew_cask:
+            name: '{{ item }}'
+            state: present
+          loop: "{{ homebrew_brewfile_cask_output.stdout_lines }}"
+          ignore_errors: true
+
+        - name: Extract mases from Brewfile
+          shell: "grep '^mas' {{ homebrew_brewfile_dir }}/Brewfile | cut -d'\", id: ' -f2"
+          register: homebrew_brewfile_mases_output
+
+        - name: Install mases extracted from Brewfile
+          mas:
+            id: '{{ item }}'
+            state: present
+          loop: "{{ homebrew_brewfile_mases_output.stdout_lines }}"
+          ignore_errors: true
       when: homebrew_brewfile.stat.exists and homebrew_use_brewfile
 
   # Privilege escalation is only required for inner steps when
